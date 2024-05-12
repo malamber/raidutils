@@ -211,6 +211,7 @@ local expaccolors = {
 }
 
 local function runLua(lua, args)
+	print("/lua run \""..def.home.."\\"..lua.."\" ".. args)
 	eqbc.bcaa("/lua run \""..def.home.."\\"..lua.."\" ".. args)
 end
 
@@ -229,7 +230,8 @@ local function createAssets()
 		tribon  = asset("tributeon.png"),
 		triboff = asset("tributeoff.png"),
 		pson    = asset("pson.png"),
-		psoff   = asset("psoff.png")
+		psoff   = asset("psoff.png"),
+		potions = asset("potions.png")
 	}
 end
 local function createTextureID(file)
@@ -395,18 +397,19 @@ local function ui_tableSidebar()
 		end)
 		setToolTip("Tribute and Trophies Off")
 
-		ImageButton("##tribon", icons.pson, bsize, function ()
-			
+		ImageButton("##pson", icons.pson, bsize, function ()
+			runLua("ru_powersource.lua","on" )
 		end)
 		setToolTip("Activate Powersource")
 		ImGui.SameLine()
-		ImageButton("##triboff", icons.psoff,bsize, function ()
-			
-		end)
+		--if(ImGui.Button("Toff", bsize)) then runLua("ru_powersource", "off")	end
+		ImageButton("##psoff", icons.psoff,bsize, function ()	runLua("ru_powersource.lua", "off" ) end)
 		setToolTip("Deactivate Powersource")
-
-
+		
 		if(ImGui.Button("Potions",  def.ui.left.width, 25)) then runLua("ru_potions", "")	end
+		--ImageButton("potion", icons.potions,ImVec2(def.ui.left.width, 30), function ()	runLua("ru_potions.lua","" )	end)
+		setToolTip("Use Potions/Poisons")
+		
 
 		ImGui.TableNextRow()
 		ImGui.TableNextColumn()
