@@ -2,11 +2,11 @@
 --print('====== Raid Settings =======')
 
 local mq           = require("mq")
-local common       = require("rip.common")
-local inv          = require("rip.include.inventory")
+require("ImGui")
+--local common       = require("rip.common")
 --local op           = require("raidutils_options")
 --local grps 		   = require("raidutils_groups")
-local log          = common.getLog()
+--local log          = common.getLog()
 
 local UI_WIDTH = 450
 local UI_HEIGHT = 500
@@ -19,6 +19,7 @@ local def = {
     debug = true,
     pulse = 500,
 	home  = "",
+	raids = "",
 	options = {		
 		filename    = mq.luaDir.."rip/utils/ru_options.lua",
 		guildtrophy = false,
@@ -382,7 +383,7 @@ local function ui_tableSidebar()
 		setToolTip("Tribute and Trophies Off")
 		--ImGui.TableNextRow()
 		--ImGui.TableNextColumn()
-		if(ImGui.Button("Potions",  def.ui.left.width, 25)) then eqbc.bcaa("/lua run rip/utils/ru_potions")	end
+		if(ImGui.Button("Potions",  def.ui.left.width, 25)) then eqbc.bcaa("/lua run ru_potions")	end
 
 		if ImGui.Button("Randoms",def.ui.left.width, 25) then
 			if mq.TLO.Lua.Script("rip/utils/raidrandom").Status() == "RUNNING" then	mq.cmd("/lua stop rip/utils/raidrandom")
@@ -528,6 +529,9 @@ local function bind_ru(...)
 	end
 end
 function file_exists(name)
+	
+	name = def.raids .. "\\"..name
+	print(name)
    local f=io.open(name,"r")
    if f~=nil then io.close(f) return true else return false end
 end
@@ -556,7 +560,6 @@ local function ui_tableRowRaid(expac, name, raid, travel)
 		end
 		ImGui.TableNextColumn()
 		if ImGui.Button("Stop##"..raid, bsize) then
-			log.debug("stop "..raid)
 			eqbc.bcaa("/lua stop rip/"..raid)
 		end
 	else
@@ -592,8 +595,8 @@ local function ui_tabRaids()
 				rname = value[2]
 				rraid = value[3]
 				rtcmd = value[5]
-				rf = def.home.."/".. rraid --..".lua"
-				if rraid =="" or file_exists(rf) then
+				--rf = def.home.."/".. rraid --..".lua"
+				if rraid =="" or file_exists(rraid) then
 					ui_tableRowRaid(rexpac, rname, rraid, rtcmd)
 				end
 			end
@@ -715,7 +718,7 @@ local function ui_tabInventory()
 		if(res or ImGui.Button("Search Item", ImVec2(50,20))) then
 			data.find.items = {}			
 			filtertoons = { "All Toons"}
-			eqbc.bcaa("/lua run rip/utils/ru_find ".. def.name.." \"".. def.ui.inventory.search.."\"")
+			eqbc.bcaa("/lua run ru_find ".. def.name.." \"".. def.ui.inventory.search.."\"")
 		end
 		ImGui.SameLine()
 		if ImGui.Button("Clear", ImVec2(50,20)) then
@@ -871,7 +874,7 @@ local function ui_tabCurrency()
 	if ImGui.BeginTabItem("Coin") then
 		if ImGui.Button("Scan", ImVec2(100,25)) then
 			data.coin.results = {}
-			eqbc.bcaa("/lua run rip/utils/ru_currency "..def.name)
+			eqbc.bcaa("/lua run ru_currency "..def.name)
 		end
 		ImGui.SameLine()
 		tsortbycount = ImGui.Checkbox("Sort by count", def.ui.coin.sortbycount)
@@ -927,11 +930,15 @@ local function bind_cur(...)
 	table.sort(data.coin.results, function (o1, o2)	return o1[1] < o2[1] end)
 end
 
+local tank      = {["WAR"]=true, ["SHD"]=true, ["PAL"]=true}
+function isTank()
+    return tank[def.class]
+end
 local function ui_minimized()
 	def.ui.opengui, DRAWGUI = ImGui.Begin('Raid##Min', def.ui.opengui)
     if DRAWGUI then		
 		height = 340
-		if common.isTank() then
+		if isTank() then
 			height = height + 25
 		end
 		ImGui.SetWindowSize(100, height)
@@ -951,7 +958,7 @@ local function ui_minimized()
 			eqbc.all("burnalways", false)
 		end)
 		setToolTip("Burns Off")
-		if common.isTank() and ImGui.Button("Tank", ImVec2(87,25)) then
+		if isTank() and ImGui.Button("Tank", ImVec2(87,25)) then
 			mq.cmd("/cw mode tank")
 		end
 		setToolTip("Mode Tank for this toon only")
@@ -1035,8 +1042,9 @@ local function Init()
 
 	if mq.TLO.Lua.Script("rip").Status()=="RUNNING" then
 		def.home = mq.TLO.Lua.Dir().."\\rip\\"
-	elseif mq.TLO.Lua.Script("rip-guild").Status()=="RUNNING" then
-		def.home = mq.TLO.Lua.Dir().."\\rip-guild\\"
+	elseif mq.TLO.Lua.Script("rip/raidutils").Status()=="RUNNING" then
+		def.home = mq.TLO.Lua.Dir().."\\rip\\raidutils"
+		def.raids = mq.TLO.Lua.Dir().."\\rip\\"
 	end
 	mq.event("gear", "#*#<#1#> #2#: #3#", event_gstatus)
 
@@ -1060,7 +1068,7 @@ local function Init()
 end
 
 local function Main()
-	log.setDebug(def.debug)
+	
 	mq.imgui.init('Randoms', showUi)
 
     while true do
