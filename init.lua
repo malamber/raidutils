@@ -65,6 +65,7 @@ local data = {
 	find = {
 		items = {},
 	},
+	random = {},
 	coin = {
 		results = {},
 		types   = {
@@ -73,6 +74,18 @@ local data = {
 			["Spiritual Medallions"] = { "NoS",450, false}
 		}
 	 },
+	 modes = {
+		"Manual",
+		"Assist",
+		"Chase",
+		"Vorpal",
+		"Tank",
+		"PullerTank",
+		"PullerAssist",-- = 6,
+		"SicTank",--      = 7,
+		"HunterTank"--   = 8
+	}
+	
 }
 
 options = {
@@ -356,39 +369,24 @@ local function ui_tableSidebar()
 		ImGui.TableSetupColumn('Tools', ImGuiTableColumnFlags.WidthStretch, -1.0, COL_NAME)
 		
 		ImGui.PushID('F_SCALE')
-		--ui_rowProfiles()
-
-		--ImGui.TableHeadersRow()
-
 		ImGui.TableNextRow()
 		ImGui.TableNextColumn()
 		ImGui.Image(icons.rip:GetTextureID(), ImVec2(def.ui.left.width, def.ui.left.width))
-		--ImGui.Image(icons.rip, ImVec2(def.ui.left.width, def.ui.left.width))
-		--ImGui.Text("Tools")
-		--ImGui.SetNextItemWidth(def.ui.peers.width )
 		if(ImGui.Button("Parser", def.ui.left.width , 25)) then	mq.cmd("/raidutils parser")	end
 		setToolTip("Run EQLogParser")
 
 		bsize =  ImVec2(def.ui.left.width/2-15, def.ui.left.width/2-20)
-		--if(ImGui.Button("Tribute On", def.ui.left.width , 25)) then	eqbc.bcaa("/tribute personal on") eqbc.bcaa("/trophy personal on") end
 		ImageButton("##tribon", icons.tribon, bsize, function ()
 			eqbc.bcaa("/tribute personal on") eqbc.bcaa("/trophy personal on") 
 		end)
 		setToolTip("Tribute and Trophies On")
 		ImGui.SameLine()
-		--if(ImGui.Button("Tribute Off",  def.ui.left.width , 25)) then eqbc.bcaa("/tribute personal off") eqbc.bcaa("/trophy personal off")	end
 		ImageButton("##triboff", icons.triboff,bsize, function ()
 			eqbc.bcaa("/tribute personal off") eqbc.bcaa("/trophy personal off") 
 		end)
 		setToolTip("Tribute and Trophies Off")
-		--ImGui.TableNextRow()
-		--ImGui.TableNextColumn()
 		if(ImGui.Button("Potions",  def.ui.left.width, 25)) then eqbc.bcaa("/lua run ru_potions")	end
 
-		if ImGui.Button("Randoms",def.ui.left.width, 25) then
-			if mq.TLO.Lua.Script("rip/utils/raidrandom").Status() == "RUNNING" then	mq.cmd("/lua stop rip/utils/raidrandom")
-		    else mq.cmd("/lua run rip/utils/raidrandom") end
-		end
 		ImGui.TableNextRow()
 		ImGui.TableNextColumn()
 		if ImGui.Button("Minimize",def.ui.left.width, 25) then	def.ui.minimized = true	end
@@ -418,24 +416,9 @@ local function ui_tableSidebar()
 	end
 end
 
-local function ui_dropDown(name, selected, items) selected = ImGui.Combo(name, selected, items, #items)	return selected end
+local function ui_dropDown(name, selected, items) return ImGui.Combo(name, selected, items, #items)	 end
 local function ui_dropDownSlots(selected)	return ImGui.Combo("Slot", selected, slots, #slots) end
-local function ui_dropDownMode(selected)
-	modes = {
-		"Manual",
-		"Assist",
-		"Chase",
-		"Vorpal",
-		"Tank",
-		"PullerTank",
-		"PullerAssist",-- = 6,
-		"SicTank",--      = 7,
-		"HunterTank"--   = 8
-	}
-	
-	selected = ui_dropDown("##mode", selected, modes) --- 1
-	return selected
-end
+local function ui_dropDownMode(selected)	return ui_dropDown("##mode", selected, data.modes) end
 local function ui_dropDownMA(selected)
 	assist = {
 		mq.TLO.Raid.MainAssist(1).Name() or "Unassigned",
@@ -529,9 +512,7 @@ local function bind_ru(...)
 	end
 end
 function file_exists(name)
-	
 	name = def.raids .. "\\"..name
-	print(name)
    local f=io.open(name,"r")
    if f~=nil then io.close(f) return true else return false end
 end
@@ -980,6 +961,48 @@ local function ui_minimized()
 	ImGui.End()
 end
 
+local function ui_tabRandoms()
+	if ImGui.BeginTabItem("Randoms") then
+		flags = getDefaultTableFlags()
+		bsize = ImVec2(50, 25)
+		if ImGui.Button("Rules", bsize) then
+			str = "Random 1000 to determine loot order"
+			mq.cmd("/rs "..str)
+		end
+		ImGui.SameLine()
+		if ImGui.Button("Roll", bsize) then
+			mq.cmd("/random 1000")
+		end
+		ImGui.SameLine()
+		if ImGui.Button("Post", bsize) then
+			str = "Loot Order: "
+			for index, value in ipairs(data.random) do
+				str = str .. value[1]
+			end
+			mq.cmd("/rs "..str)
+		end
+		ImGui.SameLine()
+		if ImGui.Button("Clear", bsize) then
+			data.random = {}
+		end
+		if ImGui.BeginTable("##random", 2, flags, ImGui.GetContentRegionAvailVec()) then
+			
+			ImGui.TableSetupColumn('Who', ImGuiTableColumnFlags.WidthAuto, -1, 0)
+			ImGui.TableSetupColumn('Roll', ImGuiTableColumnFlags.WidthAlwaysAutoResize, 250, 1)
+			ImGui.TableHeadersRow()
+			for index, value in ipairs(data.random) do
+				who = value[1]
+				roll = value[2]
+				ImGui.TableNextColumn()
+				ImGui.Text(who)
+				ImGui.TableNextColumn()
+				ImGui.Text(roll)
+			end
+			ImGui.EndTable()
+		end
+		ImGui.EndTabItem()
+	end
+end
 
 local function showUi()
 	if not def.ui.opengui or mq.TLO.MacroQuest.GameState() ~= 'INGAME' then	 mq.exit() return end
@@ -1002,6 +1025,7 @@ local function showUi()
 				ImGui.EndTabItem()
 			end
 			ui_tabRaids()
+			ui_tabRandoms()
 			ui_tabGear()
 			ui_tabInventory()
 			ui_tabCurrency()
@@ -1040,8 +1064,15 @@ local function bind_inv(...)
 	addFindResult({who,name, count,where})
 	
 end
+local function event_random(line, arg1,arg2)
+	table.insert(data.random, { arg1, arg2})
+	table.sort(data.random, function (o1, o2)
+		return tonumber(o1[2]) > tonumber(o2[2])
+	end)
+end
 local function Init()
 
+	mq.cmd("/plugin mq2status")
 	if mq.TLO.Lua.Script("raidutils").Status()=="RUNNING" then
 		def.home = mq.TLO.Lua.Dir().."\\raidutils\\"
 		def.raids = mq.TLO.Lua.Dir().."\\raidutils\\raids\\"
@@ -1050,7 +1081,7 @@ local function Init()
 		def.raids = mq.TLO.Lua.Dir().."\\rip\\"
 	end
 	mq.event("gear", "#*#<#1#> #2#: #3#", event_gstatus)
-
+	 mq.event("rn", "#*#A Magic Die is rolled by #1#. It could have been any number from 0 to 1000, but this time it turned up a #2#.#*#", event_random)
 	if not mq.TLO.Alias('/cw')() then
 		print('/cw alias not present.  Creating /cw alias (single toon cwtn command)') 
 		mq.cmd('/noparse /alias /cw /docommand /${Me.Class.ShortName}')
