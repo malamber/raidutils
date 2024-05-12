@@ -1040,8 +1040,9 @@ local function bind_inv(...)
 end
 local function Init()
 
-	if mq.TLO.Lua.Script("rip").Status()=="RUNNING" then
-		def.home = mq.TLO.Lua.Dir().."\\rip\\"
+	if mq.TLO.Lua.Script("raidutils").Status()=="RUNNING" then
+		def.home = mq.TLO.Lua.Dir().."\\raidutils\\"
+		def.raids = mq.TLO.Lua.Dir().."\\raidutils\\raids\\"
 	elseif mq.TLO.Lua.Script("rip/raidutils").Status()=="RUNNING" then
 		def.home = mq.TLO.Lua.Dir().."\\rip\\raidutils"
 		def.raids = mq.TLO.Lua.Dir().."\\rip\\"
