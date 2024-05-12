@@ -42,8 +42,8 @@ end
 function depot_init()
     if mq.TLO.TradeskillDepot.Enabled() then
         if not mq.TLO.TradeskillDepot.ItemsReceived() then
-            local msg = "\at[\aoTCSNe\agX\aot\at]\aw "
-            print(msg, "Initializing Tradeskill Depot")
+            
+            print("Initializing Tradeskill Depot")
             if not mq.TLO.Window('TradeskillDepotWnd').Open() then
                 mq.TLO.Window('TradeskillDepotWnd').DoOpen()
                 mq.delay(500)
