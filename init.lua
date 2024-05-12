@@ -209,6 +209,10 @@ local expaccolors = {
 	tol = ImVec4(1, .75, .5, 1),
 	anni = ImVec4(.75, .25, .5, 1)
 }
+
+local function runLua(lua, args)
+	eqbc.bcaa("/lua run \""..def.home.."\\"..lua.."\" ".. args)
+end
 local assetDir = "/rip/res/"
 local function asset(name)
 	--print(mq.TLO.Lua.Dir().. assetDir..name)
@@ -385,12 +389,13 @@ local function ui_tableSidebar()
 			eqbc.bcaa("/tribute personal off") eqbc.bcaa("/trophy personal off") 
 		end)
 		setToolTip("Tribute and Trophies Off")
-		if(ImGui.Button("Potions",  def.ui.left.width, 25)) then eqbc.bcaa("/lua run ru_potions")	end
+		if(ImGui.Button("Potions",  def.ui.left.width, 25)) then runLua("ru_potions", "")	end
 
 		ImGui.TableNextRow()
 		ImGui.TableNextColumn()
 		if ImGui.Button("Minimize",def.ui.left.width, 25) then	def.ui.minimized = true	end
 		setToolTip("Minimize interface")
+
 		ImGui.TableNextRow()
 		ImGui.TableNextColumn()
 		if def.ui.confirm.disband then
@@ -701,7 +706,7 @@ local function ui_tabInventory()
 		if(res or ImGui.Button("Search Item", ImVec2(50,20))) then
 			data.find.items = {}			
 			filtertoons = { "All Toons"}
-			eqbc.bcaa("/lua run ru_find ".. def.name.." \"".. def.ui.inventory.search.."\"")
+			runLua("ru_find ", def.name.." \"".. def.ui.inventory.search.."\"")
 		end
 		ImGui.SameLine()
 		if ImGui.Button("Clear", ImVec2(50,20)) then
@@ -857,7 +862,7 @@ local function ui_tabCurrency()
 	if ImGui.BeginTabItem("Coin") then
 		if ImGui.Button("Scan", ImVec2(100,25)) then
 			data.coin.results = {}
-			eqbc.bcaa("/lua run ru_currency "..def.name)
+			runLua("ru_currency",def.name)
 		end
 		ImGui.SameLine()
 		tsortbycount = ImGui.Checkbox("Sort by count", def.ui.coin.sortbycount)
