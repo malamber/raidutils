@@ -946,10 +946,12 @@ local function ui_minimized()
 			eqbc.all("burnalways", false)
 		end)
 		setToolTip("Burns Off")
-		if isTank() and ImGui.Button("Tank", ImVec2(87,25)) then
-			mq.cmd("/cw mode tank")
+		if isTank() then 
+			if ImGui.Button("Tank", ImVec2(87,25)) then
+				mq.cmd("/cw mode tank")
+			end			
+			setToolTip("Mode Tank for this toon only")
 		end
-		setToolTip("Mode Tank for this toon only")
 		if ImGui.Button("Chase", ImVec2(87,25)) then
 			eqbc.bcaa("/cw mode 2")
 		end
