@@ -211,7 +211,7 @@ local expaccolors = {
 }
 
 local function runLua(lua, args)
-	print("/lua run \""..def.home.."\\"..lua.."\" ".. args)
+	--print("/lua run \""..def.home.."\\"..lua.."\" ".. args)
 	eqbc.bcaa("/lua run \""..def.home.."\\"..lua.."\" ".. args)
 end
 

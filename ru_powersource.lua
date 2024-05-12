@@ -149,7 +149,7 @@ local function activateSource()
     end
 
     id = src.ID()
-    print("Activating => "..ps.name.." ("..powerLeft(src).."%)")
+    --print("Activating => "..ps.name.." ("..powerLeft(src).."%)")
     exchange(id)
     return true
 end
@@ -165,7 +165,7 @@ local function deactivateSource()
     end
 
     id = src.ID()
-    print("Activating => ".. ps.junk.." (JUNK)")
+    --print("Activating => ".. ps.junk.." (JUNK)")
     exchange(id)
 end
 
