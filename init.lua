@@ -538,7 +538,7 @@ end
 local function ui_tableRowRaid(expac, name, raid, travel)
 	bsize = ImVec2(50, 20)
 	color = ImVec4(1,1,1,1)
-	status =  mq.TLO.Lua.Script("rip/"..rraid:gsub(".lua", "")).Status() --== 'RUNNING'
+	status =  mq.TLO.Lua.Script("rip/"..raid:gsub(".lua", "")).Status() --== 'RUNNING'
 	--print(rraid.."=".. status)
 	if status =='RUNNING' then
 		color = ImVec4(.5,1,.5, 1)
@@ -558,6 +558,8 @@ local function ui_tableRowRaid(expac, name, raid, travel)
 		if ImGui.Button("Run##"..raid, bsize) then
 			eqbc.bcaa("/lua run rip/"..raid)
 		end
+		setToolTip(def.raids..raid)
+
 		ImGui.TableNextColumn()
 		if ImGui.Button("Stop##"..raid, bsize) then
 			eqbc.bcaa("/lua stop rip/"..raid)
