@@ -213,21 +213,25 @@ local expaccolors = {
 local function runLua(lua, args)
 	eqbc.bcaa("/lua run \""..def.home.."\\"..lua.."\" ".. args)
 end
-local assetDir = "/rip/res/"
-local function asset(name)
-	--print(mq.TLO.Lua.Dir().. assetDir..name)
-	return mq.CreateTexture( mq.TLO.Lua.Dir().. assetDir..name)
-end
-local icons = {
-	rip     = asset("rip.png"),
-	burnon  = asset("burnon.png"),
-	burnoff = asset("burnoff.png"),
-	play    = asset("play.png"),
-	stop    = asset("stop.png"),
-	tribon  = asset("tributeon.png"),
-	triboff = asset("tributeoff.png")
-}
 
+local function asset(name)
+	--print(def.home.. "/res/"..name)
+	return mq.CreateTexture( def.home.. "/res/"..name)
+end
+icons = {}
+local function createAssets()
+	icons = {
+		rip     = asset("rip.png"),
+		burnon  = asset("burnon.png"),
+		burnoff = asset("burnoff.png"),
+		play    = asset("play.png"),
+		stop    = asset("stop.png"),
+		tribon  = asset("tributeon.png"),
+		triboff = asset("tributeoff.png"),
+		pson    = asset("pson.png"),
+		psoff   = asset("psoff.png")
+	}
+end
 local function createTextureID(file)
 	return mq.CreateTexture(mq.TLO.Lua.Dir().."/rip/res/"..file):GetTextureID()
 end
@@ -380,6 +384,7 @@ local function ui_tableSidebar()
 		setToolTip("Run EQLogParser")
 
 		bsize =  ImVec2(def.ui.left.width/2-15, def.ui.left.width/2-20)
+
 		ImageButton("##tribon", icons.tribon, bsize, function ()
 			eqbc.bcaa("/tribute personal on") eqbc.bcaa("/trophy personal on") 
 		end)
@@ -389,6 +394,18 @@ local function ui_tableSidebar()
 			eqbc.bcaa("/tribute personal off") eqbc.bcaa("/trophy personal off") 
 		end)
 		setToolTip("Tribute and Trophies Off")
+
+		ImageButton("##tribon", icons.pson, bsize, function ()
+			
+		end)
+		setToolTip("Activate Powersource")
+		ImGui.SameLine()
+		ImageButton("##triboff", icons.psoff,bsize, function ()
+			
+		end)
+		setToolTip("Deactivate Powersource")
+
+
 		if(ImGui.Button("Potions",  def.ui.left.width, 25)) then runLua("ru_potions", "")	end
 
 		ImGui.TableNextRow()
@@ -1087,6 +1104,7 @@ local function Init()
 		def.home = mq.TLO.Lua.Dir().."\\rip\\raidutils"
 		def.raids = mq.TLO.Lua.Dir().."\\rip\\"
 	end
+	createAssets()
 	mq.event("gear", "#*#<#1#> #2#: #3#", event_gstatus)
 	 mq.event("rn", "#*#A Magic Die is rolled by #1#. It could have been any number from 0 to 1000, but this time it turned up a #2#.#*#", event_random)
 	if not mq.TLO.Alias('/cw')() then
